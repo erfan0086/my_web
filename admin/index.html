@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>پنل مدیریت فروشگاه</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============ صفحه ورود ============ -->
+  <div class="login-wrap" id="loginView">
+    <div class="login-card">
+      <div class="login-logo">🛍️</div>
+      <h1 class="gradient-text">پنل مدیریت</h1>
+      <p class="login-sub">برای ورود، ایمیل و رمز عبور خود را وارد کنید</p>
+      <form id="loginForm" autocomplete="on">
+        <label class="field">
+          <span>ایمیل</span>
+          <input type="email" id="loginEmail" required placeholder="admin@shop.local" autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>رمز عبور</span>
+          <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" />
+        </label>
+        <button class="btn btn-primary btn-block" type="submit" id="loginBtn">ورود</button>
+        <p class="login-error" id="loginError"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ بدنه اصلی ============ -->
+  <div class="shell hidden" id="appView">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🛍️</span>
+        <span>پنل مدیریت</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard">📊 داشبورد</button>
+        <button class="nav-item" data-view="products">📦 کالاها</button>
+        <button class="nav-item" data-view="pricing">💱 قیمت‌گذاری خودکار</button>
+        <button class="nav-item" data-view="history">📈 تاریخچه قیمت</button>
+        <button class="nav-item admin-only" data-view="users">👤 کاربران</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="me">
+          <div class="me-avatar" id="meAvatar">م</div>
+          <div>
+            <div class="me-name" id="meName">—</div>
+            <div class="me-role" id="meRole">—</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-block" id="logoutBtn">خروج</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="viewTitle">داشبورد</h2>
+          <p class="muted" id="viewSubtitle">خلاصه وضعیت فروشگاه</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost" id="refreshBtn">🔄 بروزرسانی</button>
+          <button class="btn btn-primary hidden" id="newProductTop">➕ کالای جدید</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- ---------- داشبورد ---------- -->
+        <section class="view" id="view-dashboard">
+          <div class="stats" id="statsGrid"></div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>آخرین تغییرات قیمت</h3>
+              <div class="table-wrap"><table class="table" id="dashHistory"></table></div>
+            </div>
+            <div class="card">
+              <h3>آخرین اجرای قیمت‌گذاری خودکار</h3>
+              <div id="dashRun" class="run-box"></div>
+              <h3 class="mt">کالاهایی که رو به اتمام‌اند</h3>
+              <div class="table-wrap"><table class="table" id="dashLowStock"></table></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- کالاها ---------- -->
+        <section class="view hidden" id="view-products">
+          <div class="card">
+            <div class="filters">
+              <input type="search" id="pSearch" class="input" placeholder="جستجو در نام، کد کالا، برچسب…" />
+              <select id="pStatus" class="input">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="active">منتشرشده</option>
+                <option value="draft">پیش‌نویس</option>
+                <option value="archived">بایگانی</option>
+              </select>
+              <select id="pCategory" class="input"><option value="">همه دسته‌ها</option></select>
+              <select id="pSort" class="input">
+                <option value="newest">جدیدترین</option>
+                <option value="oldest">قدیمی‌ترین</option>
+                <option value="priceAsc">ارزان‌ترین</option>
+                <option value="priceDesc">گران‌ترین</option>
+                <option value="name">الفبایی</option>
+                <option value="stockAsc">کمترین موجودی</option>
+              </select>
+              <button class="btn btn-primary" id="newProductBtn">➕ کالای جدید</button>
+            </div>
+
+            <div class="bulkbar">
+              <span id="selectedCount">هیچ موردی انتخاب نشده</span>
+              <div class="bulk-actions">
+                <button class="btn btn-sm" data-bulk="activate">منتشر کردن</button>
+                <button class="btn btn-sm" data-bulk="deactivate">پیش‌نویس کردن</button>
+                <button class="btn btn-sm" data-bulk="reprice">محاسبه مجدد قیمت</button>
+                <button class="btn btn-sm btn-danger admin-only" data-bulk="delete">حذف</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th>کالا</th>
+                    <th>دسته</th>
+                    <th>قیمت فروش</th>
+                    <th>موجودی</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+              </table>
+            </div>
+            <div class="pager" id="pager"></div>
+          </div>
+        </section>
+
+        <!-- ---------- قیمت‌گذاری ---------- -->
+        <section class="view hidden" id="view-pricing">
+          <div class="grid-2">
+            <div class="card">
+              <h3>قوانین محاسبه قیمت</h3>
+              <p class="muted sm">هر بار که قوانین یا نرخ ارز را ذخیره کنید، قیمت همهٔ کالاهای «خودکار» بلافاصله دوباره محاسبه می‌شود.</p>
+              <form id="rulesForm" class="form-grid">
+                <label class="field"><span>درصد سود پیش‌فرض</span>
+                  <input type="number" step="0.1" id="rMargin" class="input" required />
+                </label>
+                <label class="field"><span>درصد مالیات / ارزش افزوده</span>
+                  <input type="number" step="0.1" id="rTax" class="input" required />
+                </label>
+                <label class="field"><span>حداقل سود (تومان)</span>
+                  <input type="number" step="1" id="rMinProfit" class="input" required />
+                </label>
+                <label class="field"><span>روش گرد کردن</span>
+                  <select id="rRoundMode" class="input">
+                    <option value="nearest">نزدیک‌ترین</option>
+                    <option value="up">به بالا</option>
+                    <option value="down">به پایین</option>
+                    <option value="none">بدون گرد کردن</option>
+                  </select>
+                </label>
+                <label class="field"><span>واحد گرد کردن (مثلاً ۱۰۰۰)</span>
+                  <input type="number" step="1" id="rRoundTo" class="input" required />
+                </label>
+                <div class="field"><span>&nbsp;</span>
+                  <button class="btn btn-primary" type="submit" id="saveRulesBtn">ذخیره قوانین</button>
+                </div>
+              </form>
+              <div class="formula mt">
+                فرمول: <code>قیمت = گردکردن( (قیمت خرید × نرخ ارز) × (۱ + سود) × (۱ + مالیات) )</code>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>نرخ ارز (نسبت به <span id="baseCurrency">IRR</span>)</h3>
+              <p class="muted sm">ارز پایه همیشه مقدار ۱ دارد. هر تغییر ⇒ بروزرسانی خودکار همه قیمت‌ها.</p>
+              <div id="ratesList" class="rates"></div>
+              <div class="row mt">
+                <input type="text" id="newRateCode" class="input small" placeholder="USD" maxlength="3" />
+                <input type="number" id="newRateValue" class="input" placeholder="نرخ" />
+                <button class="btn" id="addRateBtn">افزودن ارز</button>
+              </div>
+              <div class="row mt">
+                <button class="btn btn-primary" id="saveRatesBtn">ذخیره نرخ‌ها و بروزرسانی قیمت‌ها</button>
+                <button class="btn btn-ghost" id="recalcBtn">محاسبه مجدد (بدون تغییر نرخ)</button>
+              </div>
+              <div id="rateResult" class="result-box mt"></div>
+            </div>
+          </div>
+
+          <div class="card mt">
+            <div class="card-head">
+              <h3>پیش‌نمایش تغییرات</h3>
+              <button class="btn btn-sm btn-ghost" id="previewBtn">بروزرسانی پیش‌نمایش</button>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>کالا</th><th>حالت</th><th>قیمت فعلی</th><th>قیمت جدید</th><th>تغییر</th><th>جزئیات محاسبه</th></tr></thead>
+                <tbody id="previewBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- تاریخچه ---------- -->
+        <section class="view hidden" id="view-history">
+          <div class="card">
+            <div class="card-head">
+              <h3>تاریخچه تغییرات قیمت</h3>
+              <input type="number" id="historyLimit" class="input small" value="100" min="10" max="500" />
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>زمان</th><th>کالا</th><th>از</th><th>به</th><th>تغییر</th><th>دلیل</th></tr></thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- کاربران ---------- -->
+        <section class="view hidden" id="view-users">
+          <div class="grid-2">
+            <div class="card">
+              <h3>افزودن کاربر جدید</h3>
+              <form id="userForm" class="form-grid">
+                <label class="field"><span>نام</span><input type="text" id="uName" class="input" required /></label>
+                <label class="field"><span>ایمیل</span><input type="email" id="uEmail" class="input" required /></label>
+                <label class="field"><span>رمز عبور</span><input type="password" id="uPassword" class="input" required minlength="8" /></label>
+                <label class="field"><span>نقش</span>
+                  <select id="uRole" class="input">
+                    <option value="editor">ویرایشگر (مدیریت کالا)</option>
+                    <option value="admin">مدیر ارشد (دسترسی کامل)</option>
+                  </select>
+                </label>
+                <div class="field"><span>&nbsp;</span><button class="btn btn-primary" type="submit">ایجاد کاربر</button></div>
+              </form>
+            </div>
+            <div class="card">
+              <h3>کاربران فعلی</h3>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead><tr><th>نام</th><th>ایمیل</th><th>نقش</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+                  <tbody id="usersBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============ مودال ویرایش کالا ============ -->
+  <div class="modal-backdrop hidden" id="productModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modalTitle">کالای جدید</h3>
+        <button class="icon-btn" id="closeModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tabs">
+          <button class="tab active" data-tab="basic">اطلاعات پایه</button>
+          <button class="tab" data-tab="specs">مشخصات فنی</button>
+          <button class="tab" data-tab="pricing">قیمت و موجودی</button>
+          <button class="tab" data-tab="media">تصاویر و سئو</button>
+        </div>
+
+        <form id="productForm">
+          <!-- تب پایه -->
+          <div class="tab-pane active" data-pane="basic">
+            <div class="form-grid">
+              <label class="field span-2"><span>نام کالا *</span><input type="text" id="fName" class="input" required /></label>
+              <label class="field"><span>کد کالا (SKU)</span><input type="text" id="fSku" class="input" /></label>
+              <label class="field"><span>دسته‌بندی</span><input type="text" id="fCategory" class="input" list="categoryList" /><datalist id="categoryList"></datalist></label>
+              <label class="field"><span>برند</span><input type="text" id="fBrand" class="input" /></label>
+              <label class="field"><span>وضعیت</span>
+                <select id="fStatus" class="input">
+                  <option value="active">منتشرشده</option>
+                  <option value="draft">پیش‌نویس</option>
+                  <option value="archived">بایگانی‌شده</option>
+                </select>
+              </label>
+              <label class="field span-2"><span>توضیح کوتاه</span><input type="text" id="fShort" class="input" maxlength="500" /></label>
+              <label class="field span-2"><span>توضیحات کامل</span><textarea id="fDesc" class="input" rows="5"></textarea></label>
+              <label class="field span-2"><span>برچسب‌ها (با کاما جدا کنید)</span><input type="text" id="fTags" class="input" /></label>
+              <label class="check"><input type="checkbox" id="fFeatured" /> <span>نمایش در ویترین (کالای ویژه)</span></label>
+            </div>
+          </div>
+
+          <!-- تب مشخصات -->
+          <div class="tab-pane" data-pane="specs">
+            <p class="muted sm">هر مشخصه یک ردیف است؛ مثلاً «مدت اعتبار» → «۳ ماه».</p>
+            <div id="specsList" class="specs-list"></div>
+            <button type="button" class="btn btn-sm mt" id="addSpecBtn">➕ افزودن مشخصه</button>
+          </div>
+
+          <!-- تب قیمت -->
+          <div class="tab-pane" data-pane="pricing">
+            <div class="form-grid">
+              <label class="field"><span>حالت قیمت‌گذاری</span>
+                <select id="fPricingMode" class="input">
+                  <option value="auto">خودکار (بر اساس قوانین)</option>
+                  <option value="manual">دستی (قیمت ثابت)</option>
+                </select>
+              </label>
+              <label class="field"><span>ارز خرید</span>
+                <select id="fCostCurrency" class="input">
+                  <option value="IRR">IRR — تومان</option>
+                  <option value="USD">USD — دلار</option>
+                  <option value="EUR">EUR — یورو</option>
+                  <option value="AED">AED — درهم</option>
+                  <option value="TRY">TRY — لیر</option>
+                </select>
+              </label>
+              <label class="field auto-only"><span>قیمت خرید (تمام‌شده)</span><input type="number" step="0.01" id="fCost" class="input" /></label>
+              <label class="field auto-only"><span>درصد سود (خالی = پیش‌فرض)</span><input type="number" step="0.1" id="fMargin" class="input" /></label>
+              <label class="field manual-only hidden"><span>قیمت فروش ثابت</span><input type="number" step="1" id="fManualPrice" class="input" /></label>
+              <label class="field"><span>قیمت قبل تخفیف (اختیاری)</span><input type="number" step="1" id="fCompareAt" class="input" /></label>
+              <label class="field"><span>موجودی</span><input type="number" step="1" id="fStock" class="input" /></label>
+              <label class="field"><span>آستانه اتمام موجودی</span><input type="number" step="1" id="fLowStock" class="input" /></label>
+              <label class="check"><input type="checkbox" id="fTrackStock" checked /> <span>مدیریت موجودی فعال باشد</span></label>
+            </div>
+            <div id="priceCalc" class="result-box mt"></div>
+          </div>
+
+          <!-- تب تصاویر -->
+          <div class="tab-pane" data-pane="media">
+            <div id="imagesList" class="images-list"></div>
+            <button type="button" class="btn btn-sm mt" id="addImageBtn">➕ افزودن تصویر</button>
+            <hr class="hr" />
+            <div class="form-grid">
+              <label class="field span-2"><span>عنوان سئو</span><input type="text" id="fSeoTitle" class="input" maxlength="200" /></label>
+              <label class="field span-2"><span>توضیح سئو</span><textarea id="fSeoDesc" class="input" rows="3" maxlength="500"></textarea></label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="cancelModal">انصراف</button>
+        <button class="btn btn-primary" id="saveProductBtn">ذخیره کالا</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+  <script src="app.js"></script>
+</body>
+</html>
