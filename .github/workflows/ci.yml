@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'server/**'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: تست بکند (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+
+    steps:
+      - name: دریافت کد
+        uses: actions/checkout@v4
+
+      - name: نصب Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: نصب وابستگی‌ها
+        run: npm ci
+
+      - name: اجرای تست‌ها
+        run: npm test

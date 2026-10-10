@@ -1,0 +1,36 @@
+# دیپلوی روی Render.com
+# از داشبورد: New → Blueprint → این ریپازیتوری را انتخاب کنید.
+# همهٔ تنظیمات از همین فایل خوانده می‌شود.
+services:
+  - type: web
+    name: my-web-server
+    runtime: node
+    rootDir: server          # بکند داخل پوشهٔ server است
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: JWT_SECRET
+        generateValue: true   # Render یک کلید تصادفی می‌سازد
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: PRICE_SCHEDULE
+        value: "*/30 * * * *"
+      - key: DATA_DIR
+        value: /app/data
+      # اختیاری: منبع نرخ ارز برای بروزرسانی خودکار قیمت
+      # - key: RATE_SOURCE_URL
+      #   value: https://example.com/api/rates
+      # اختیاری: محدود کردن IPهای مجاز برای پنل
+      # - key: ADMIN_IP_ALLOWLIST
+      #   value: 1.2.3.4,5.6.7.8
+
+# نکته: در پلن رایگان فایل‌سیستم موقتی است و با هر دیپلوی data/db.json پاک می‌شود.
+# برای ماندگاری داده: دیسک متصل کنید (Starter به بالا) یا دیتابیس واقعی وصل کنید.

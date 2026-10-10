@@ -34,6 +34,84 @@ npm run create-admin -- "نام شما" you@site.com رمزعبور admin
 
 ---
 
+## 🚀 دیپلوی (انتشار روی اینترنت)
+
+> ⚠️ **نکتهٔ مهم:** GitHub Pages فقط فایل‌های استاتیک را سرو می‌کند و **نمی‌تواند بکند Node.js را اجرا کند**.
+> برای اینکه پنل ادمین و API واقعاً کار کنند، بکند باید روی یک هاست Node اجرا شود.
+> (Pages این ریپازیتوری از قبل روی `main` فعال است و صفحهٔ استاتیک را منتشر می‌کند؛
+> بکند روی آن اجرا نمی‌شود.)
+
+فایل‌های مورد نیاز دیپلوی از قبل در ریپو هستند:
+
+| فایل | کاربرد |
+|---|---|
+| `render.yaml` | دیپلوی یک‌کلیکی روی **Render** |
+| `railway.json` | تنظیمات **Railway** |
+| `server/Dockerfile` | اجرا با **Docker** روی هر هاستی |
+| `.github/workflows/ci.yml` | اجرای خودکار تست‌ها بعد از هر push/PR |
+
+### گزینه ۱: Render (ساده‌ترین)
+
+1. به [render.com](https://render.com) وارد شوید و ریپازیتوری را متصل کنید
+2. `New` → `Blueprint` → انتخاب ریپازیتوری
+3. Render تنظیمات را از `render.yaml` می‌خواند (`rootDir: server`، ساخت `npm ci`، اجرا `npm start`)
+4. منتظر پایان ساخت بمانید، سپس `https://<آدرس-سرویس>/admin` را باز کنید
+
+### گزینه ۲: Railway
+
+1. `New Project` → `Deploy from GitHub repo`
+2. در تنظیمات سرویس: **Root Directory** را `server` بگذارید
+3. متغیر `JWT_SECRET` را اضافه کنید (یا Railway به‌صورت خودکار مقدار می‌دهد)
+4. آدرس عمومی را از تب Networking بگیرید
+
+### گزینه ۳: Docker (هر هاستی / VPS)
+
+```bash
+cd server
+docker build -t my-web-server .
+docker run -d -p 3000:3000 \
+  -e JWT_SECRET=یک-رشته-تصادفی-بلند \
+  -v shop-data:/app/data \
+  --name shop my-web-server
+```
+
+### گزینه ۴: VPS با PM2
+
+```bash
+cd server
+npm ci --omit=dev
+npm run seed                       # فقط بار اول
+pm2 start src/index.js --name shop
+pm2 save && pm2 startup
+```
+
+### متغیرهای مهم روی هاست
+
+حتماً این‌ها را در تنظیمات هاست مقداردهی کنید:
+
+```
+JWT_SECRET=...            # الزامی
+NODE_ENV=production
+PRICE_SCHEDULE=*/30 * * * *
+RATE_SOURCE_URL=...       # اختیاری
+DATA_DIR=/app/data        # مسیر ماندگارِ داده
+```
+
+> **ماندگاری داده:** داده در `data/db.json` ذخیره می‌شود. روی پلن‌های رایگانِ برخی هاست‌ها
+> فایل‌سیستم موقتی است و با هر دیپلوی پاک می‌شود — یا یک Volume/Disk متصل کنید،
+> یا لایه داده را به SQLite/Postgres تغییر دهید.
+
+### تست بعد از دیپلوی
+
+```bash
+cd server && npm test        # ۳۲ تست روی مسیرهای اصلی را اجرا می‌کند
+curl https://<آدرس-سرویس>/api/health
+```
+
+همچنین با هر `push` روی `main`، فلو `CI` در GitHub Actions تست‌ها را اجرا می‌کند.
+
+---
+
 ## 📁 ساختار پروژه
 
 ```
